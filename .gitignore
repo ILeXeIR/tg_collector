@@ -1,0 +1,4 @@
+__pycache__/
+.env
+Bot/tg_bot_env/
+Bot/downloads/

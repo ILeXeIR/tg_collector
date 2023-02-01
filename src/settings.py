@@ -3,7 +3,7 @@ from starlette.config import Config
 config = Config(".env")
 
 def get_db_url(user, passwd, host, db):
-    return f"postgres://{user}:{passwd}@{host}:5432/{db}"
+    return f"postgres://{user}:{passwd}@{host}:35432/{db}"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 
 ALGORITHM = "HS256"

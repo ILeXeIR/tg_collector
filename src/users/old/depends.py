@@ -1,5 +1,4 @@
 from fastapi import Depends, HTTPException, status
-from src.db.base import database
 from src.security import JWTBearer, decode_access_token
 from .models import User, UserIn
 from .repositories import UserRepository

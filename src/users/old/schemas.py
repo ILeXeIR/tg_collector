@@ -2,7 +2,7 @@ import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, validator, constr
 
-class UserForm(BaseModel):
+class UserSchema(BaseModel):
 	id: Optional[int] = None
 	name: str
 	email: EmailStr
@@ -10,7 +10,7 @@ class UserForm(BaseModel):
 	created_at: datetime.datetime
 	updated_at: datetime.datetime
 
-class UserInForm(BaseModel):
+class UserInSchema(BaseModel):
 	name: str
 	email: EmailStr
 	password: constr(min_length=8)

@@ -1,0 +1,12 @@
+version: "3"
+
+services: 
+    db:
+        hostname: localhost
+        image: bitnami/postgresql:latest
+        environment:
+        - POSTGRESQL_USERNAME=guest
+        - POSTGRESQL_PASSWORD=guest
+        - POSTGRESQL_DATABASE=postgres_db
+        ports: 
+        - "35432:5432"

@@ -1,10 +1,9 @@
 import datetime
 
-from databases import Database 
 from typing import List, Optional
-from src.db.users import users
 from src.security import hash_password
-from .models import User, UserIn
+from .models import User
+from .schemas import UserSchema, UserInSchema
 
 
 class UserRepository:

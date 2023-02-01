@@ -1,14 +1,26 @@
-from tortoise.models import Model
-from tortoise import fields
+import datetime
 
+from typing import Optional
+from pydantic import BaseModel, constr, EmailStr
+from uuid import UUID
 
-class User(Model):
-    #id = fields.IntField(pk=True) Automaticly created with generated=True
-    name = fields.CharField(max_length=255, unique=True)
-    email = fields.CharField(max_length=255, unique=True)
-    hashed_password = fields.CharField(max_length=255)
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(auto_now=True)
+class User_Pydantic(BaseModel):
+    id: Optional[UUID]
+    username: constr(max_length=30)
+    email: EmailStr
+    real_name: Optional[constr(max_length=50)]
+    password_hash : constr(max_length=128)
+    created_at : datetime.datetime
+    modified_at : datetime.datetime
 
-    def __str__(self):
-        return self.name
+    class Config:
+        orm_mode = True
+
+class UserIn_Pydantic(BaseModel):
+    username: constr(max_length=30)
+    email: EmailStr
+    real_name: Optional[constr(max_length=50)]
+    password: constr(min_length=8, max_length=50)
+
+    class Config:
+        orm_mode = True

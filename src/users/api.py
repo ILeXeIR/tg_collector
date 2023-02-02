@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from .dao import Users, User_Pydantic, UserIn_Pydantic
@@ -33,8 +35,7 @@ async def update_user(id: str, user: UserIn_Pydantic):
 	user_obj = await Users.get_or_none(id=id)
 	if not user_obj:
 		raise HTTPException(400, detail="User not found")
-	await user_obj.update(**user.dict(exclude_unset=True))
-	#for field_name in user.dict(exclude_unset=True):
-	#	setattr(user_obj, field_name, user[field_name])
-	#await user_obj.save(update_fields=user.keys())
+	for field_name, field_value in user.dict(exclude_unset=True).items():
+		setattr(user_obj, field_name, field_value)
+	await user_obj.save()
 	return await User_Pydantic.from_tortoise_orm(user_obj)

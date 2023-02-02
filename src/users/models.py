@@ -1,11 +1,10 @@
 import datetime
 
 from typing import Optional
-from pydantic import BaseModel, constr, EmailStr
-from tortoise.contrib.pydantic.base import PydanticModel
+from pydantic import BaseModel, constr, EmailStr, validator
 from uuid import UUID
 
-"""
+
 class User_Pydantic(BaseModel):
     id: Optional[UUID]
     username: constr(max_length=30)
@@ -22,28 +21,18 @@ class UserIn_Pydantic(BaseModel):
     username: constr(max_length=30)
     email: EmailStr
     real_name: Optional[constr(max_length=50)]
-    password: constr(min_length=8, max_length=50)
-
-    class Config:
-        orm_mode = True
-"""
-class User_Pydantic(PydanticModel):
-    id: Optional[UUID]
-    username: str
-    email: str
-    real_name: Optional[str]
-    password_hash : str
-    created_at : datetime.datetime
-    modified_at : datetime.datetime
+    password: constr(max_length=50)
+    password2: str 
 
     class Config:
         orm_mode = True
 
-class UserIn_Pydantic(PydanticModel):
-    username: str
-    email: str
-    real_name: Optional[str]
-    password: str
+    @validator("password2")
+    def password_match(cls, v, values, **kwargs):
+        if "password" in values and v != values["password"]:
+            raise ValueError("passwords don't match")
+        return v
 
-    class Config:
-        orm_mode = True
+class Token(BaseModel):
+    access_token: str
+    token_type: str 

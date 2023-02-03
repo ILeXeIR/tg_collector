@@ -1,13 +1,14 @@
-import uvicorn
-
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise, connections
-from src.users.api import users_router
-from src import settings
+import uvicorn
 
+from src import settings
+from src.collector.api import messages_router
+from src.users.api import users_router
 
 app = FastAPI(title="Telegram Collector")
 app.include_router(users_router, prefix="/users", tags=["users"])
+app.include_router(messages_router, prefix="/messages", tags=["messages"])
 
 @app.on_event("startup")
 async def startup():
@@ -15,7 +16,7 @@ async def startup():
         app,
         #db_url=settings.POSTGRESQL_URL,
         db_url="sqlite://database/db.sqlite",
-        modules={"models": ["src.users.dao"]},
+        modules={"models": ["src.users.dao", "src.collector.dao"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )
@@ -28,7 +29,7 @@ async def shutdown():
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "World"}
+    return {"Connection": "Success"}
 
 
 if __name__ == "__main__":

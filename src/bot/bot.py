@@ -1,16 +1,18 @@
+from datetime import datetime
+import json
 import logging
 import os
+from pathlib import Path
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types.message import ContentType
-from datetime import datetime
-from dotenv import load_dotenv
-from pathlib import Path
+import requests
+
+from src import settings 
 
 
-load_dotenv()  # take environment variables from .env.
-
-TOKEN = os.environ.get('TOKEN')
+TOKEN = settings.TG_BOT_TOKEN
+API_URL = "http://127.0.0.1:8000/"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,20 +25,27 @@ dp = Dispatcher(bot)
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
     await message.reply("Hi! I'm SpanBot!\n"
-                        + "I can save your text and photo messages as files.")
+                        + "I can save your text messages in db.\n"
+                        + "You may check api connection with command /check")
+
+@dp.message_handler(commands=['check'])
+async def check_api_connection(message: types.Message):
+    response = requests.get(API_URL)
+    await message.reply(response.json())
 
 @dp.message_handler()
-async def save_text_message(message: types.Message):
-    chat_id = message.chat.id
-    filename = str(datetime.now())[:19] + '.txt'
-    filename = filename.replace('-', '_').replace(':', '_').replace(' ', '_')
-    filepath = Path('downloads', str(chat_id), filename)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    filepath.touch()
-    with open(filepath, 'w') as file_object:
-        text = message.from_user.username + ":\n" + message.text
-        file_object.write(text)
-    await bot.send_document(chat_id=chat_id, document=types.InputFile(filepath))
+async def send_text_message(message: types.Message):
+    date_time = datetime.now()
+    data = {
+        "message_id": message.message_id,
+        "chat_id": message.chat.id,
+        "datetime": date_time.strftime("%d.%m.%Y %H:%M:%S:%f"),
+        "sender": message.from_user.username,
+        "type": "text message",
+        "text": message.text
+    }
+    response = requests.post(f"{API_URL}messages", json=data)
+    await message.reply(response.status_code)
 
 @dp.message_handler(content_types=ContentType.PHOTO)
 async def save_image(message: types.Message):
@@ -54,3 +63,30 @@ async def unknown_message(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
+
+def run_bot():
+    executor.start_polling(dp, skip_updates=True)
+
+"""
+@dp.message_handler()
+async def save_text_message(message: types.Message):
+    chat_id = message.chat.id
+    date_time = datetime.now()
+    filename = date_time.strftime("%d_%m_%Y_%H_%M_%S_%f") + '.json'
+    filepath = Path('downloads', str(chat_id), filename)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    filepath.touch()
+    data = {
+        "message_id": message.message_id,
+        "chat_id": chat_id,
+        "datetime": date_time.strftime("%d.%m.%Y %H:%M:%S:%f"),
+        "sender": message.from_user.username,
+        "type": "text message",
+        "text": message.text
+    }
+    with open(filepath, 'w') as file_object:
+        #text = message.from_user.username + ":\n" + message.text
+        #file_object.write(text)
+        json.dump(data, file_object, indent=2)
+    await bot.send_document(chat_id=chat_id, document=types.InputFile(filepath))
+"""

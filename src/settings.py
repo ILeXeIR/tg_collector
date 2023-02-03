@@ -5,6 +5,8 @@ config = Config(".env")
 def get_db_url(user, passwd, host, db):
     return f"postgres://{user}:{passwd}@{host}:35432/{db}"
 
+TG_BOT_TOKEN = config("TG_BOT_TOKEN", cast=str, default="")
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 
 ALGORITHM = "HS256"
 SECRET_KEY = config("TC_SECRET_KEY", cast=str, 

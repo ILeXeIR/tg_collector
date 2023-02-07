@@ -11,6 +11,7 @@ class Messages(models.Model):
     sender = fields.CharField(max_length=50)
     message_type = fields.CharField(max_length=30)
     text = fields.TextField(null=True)
+    attachment = fields.JSONField()
 
     def __str__(self):
         return self.id

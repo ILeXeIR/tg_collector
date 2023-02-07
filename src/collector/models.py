@@ -11,6 +11,10 @@ class Message_Pydantic(BaseModel):
     sender: constr(max_length=50)
     message_type: constr(max_length=30)
     text: Optional[str]
+    attachment: str
 
     class Config:
         orm_mode = True
+
+class MessageOUT_Pydantic(Message_Pydantic):
+    attachment: dict

@@ -39,7 +39,7 @@ async def send_message(message: types.Message):
     data = dict(message)
     data["content_type"] = message.content_type
     response = requests.post(f"{API_URL}messages", json=data)
-    await message.reply(response.status_code)
+    #await message.reply(response.status_code)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

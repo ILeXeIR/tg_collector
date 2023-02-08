@@ -5,11 +5,13 @@ import logging
 #from pathlib import Path
 
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types.message import ContentType
 #import jsonpickle
 import requests
 
 from src import settings 
+from . import fsm
 
 
 TOKEN = settings.TG_BOT_TOKEN
@@ -20,16 +22,19 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
+
+fsm.register_handler_fsm(dp)
 
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(commands=["start", "help"])
 async def send_welcome(message: types.Message):
     await message.reply("Hi! I'm SpanBot!\n"
                         + "I can save your messages in db.\n"
-                        + "You may check api connection with command /check")
+                        + "You may check api connection with command /check"
+                        + " or /rate this bot.")
 
-@dp.message_handler(commands=['check'])
+@dp.message_handler(commands=["check"])
 async def check_api_connection(message: types.Message):
     response = requests.get(API_URL)
     await message.reply(response.json())

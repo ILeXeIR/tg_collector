@@ -37,7 +37,7 @@ async def create_message(data: dict):
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():
 	data = await Messages.all().distinct().values("chat_id")
-	list_of_chats = [x["chat_id"] for x in data]
+	list_of_chats = sorted([x["chat_id"] for x in data])
 	return list_of_chats
 
 @messages_router.get("/chat_objects/{chat_id}", response_model=List[MessageOUT_Pydantic])

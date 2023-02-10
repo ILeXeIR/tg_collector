@@ -1,99 +1,98 @@
+import asyncio
 from datetime import datetime
 #import json
 import logging
 #import os
 #from pathlib import Path
 
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import BotCommand, BotCommandScopeDefault, ChatMemberUpdated
 from aiogram.types.message import ContentType
+from aiogram.filters import Command
+from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, JOIN_TRANSITION
 #import jsonpickle
 import requests
 
 from src import settings 
-from . import fsm
+from . import collector, fsm
 
 
 TOKEN = settings.TG_BOT_TOKEN
-API_URL = "http://127.0.0.1:8000/"
+API_URL = settings.TG_BOT_API_URL
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot, storage=MemoryStorage())
+dp = Dispatcher(storage=MemoryStorage())
+dp.include_router(fsm.router)
+dp.include_router(collector.router)
 
-fsm.register_handler_fsm(dp)
+commands = [
+    BotCommand(
+        command="start",
+        description="Bot description"
+    ),
+    BotCommand(
+        command="help",
+        description="Help"
+    ),
+    BotCommand(
+        command="check",
+        description="Check connection to DB"
+    ),
+    BotCommand(
+        command="rate",
+        description="Rate this bot"
+    ),
+    BotCommand(
+        command="cancel",
+        description="Exit from FSM"
+    )
+]
 
-
-@dp.message_handler(commands=["start", "help"])
+@dp.message(Command(commands=["start", "help"]))
 async def send_welcome(message: types.Message):
     await message.reply("Hi! I'm SpanBot!\n"
                         + "I can save your messages in db.\n"
                         + "You may check api connection with command /check"
                         + " or /rate this bot.")
 
-@dp.message_handler(commands=["check"])
+@dp.message(Command(commands=["check"]))
 async def check_api_connection(message: types.Message):
     response = requests.get(API_URL)
-    await message.reply(response.json())
+    await message.answer(str(response.json()))
 
-@dp.message_handler(content_types=ContentType.ANY)
-async def send_message(message: types.Message):
-    data = dict(message)
-    data["content_type"] = message.content_type
-    response = requests.post(f"{API_URL}messages", json=data)
-    #await message.reply(response.status_code)
+@dp.my_chat_member(
+    ChatMemberUpdatedFilter(
+        member_status_changed=JOIN_TRANSITION
+    )
+)
+async def bot_was_added_in_chat(event: ChatMemberUpdated):
+    chat_id = event.chat.id 
+    await bot.send_message(chat_id=chat_id, text="Alloha!")
+
+
+async def send_message_from_bot(chat_id: int, text: str):
+    try:
+        await bot.send_message(chat_id=chat_id, text=text)
+        return "Done!"
+    except:
+        return "I can't do that."
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(dp.start_polling(bot))
 
-def run_bot():
-    executor.start_polling(dp, skip_updates=True)
+async def run_bot():
+    #executor.start_polling(dp, skip_updates=True)
+    try:
+        await bot.set_my_commands(commands, BotCommandScopeDefault())
+        await dp.start_polling(bot)
+    finally:
+        bot.session.close()
 
-"""
-@dp.message_handler()
-async def save_text_message(message: types.Message):
-    chat_id = message.chat.id
-    date_time = message.date
-    filename = str(message.message_id) + '.json'
-    filepath = Path('downloads', str(chat_id), filename)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    filepath.touch()
-    data = {
-        "message_id": message.message_id,
-        "chat_id": message.chat.id,
-        "datetime": date_time.strftime("%d.%m.%Y %H:%M:%S"),
-        "sender": message.from_user.username,
-        "type": message.content_type,
-        "text": message.text
-    }
-    with open(filepath, 'w') as file_object:
-        #text = message.from_user.username + ":\n" + message.text
-        #message_json = jsonpickle.encode(message, indent=2)
-        #file_object.write(message_json)
-        json.dump(data, file_object, indent=2)
-    await bot.send_document(chat_id=chat_id, document=types.InputFile(filepath))
-
-@dp.message_handler(content_types=ContentType.PHOTO)
-async def save_image(message: types.Message):
-    chat_id = message.chat.id
-    file_info = await bot.get_file(message.photo[-1].file_id)
-    filename = file_info.file_path
-    filepath = Path('downloads', str(chat_id), filename)
-    file = await bot.download_file(filename, filepath)
-    await bot.send_document(chat_id=chat_id, document=types.InputFile(filepath))
-    await save_text_message(message, m_type="image", m_text=message.caption)
-
-    filename2 = str(message.message_id) + '.json'
-    filepath2 = Path('downloads', str(chat_id), filename2)
-    filepath2.touch()
-    with open(filepath2, 'w') as file_object:
-        message_json = jsonpickle.encode(message, indent=2)
-        file_object.write(message_json)
-    await bot.send_document(chat_id=chat_id, document=types.InputFile(filepath2))
-"""
 
 
 

@@ -3,6 +3,8 @@ import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
+
+from src.bot.bot import send_message_from_bot
 from .dao import Messages
 from .models import Message_Pydantic, MessageOUT_Pydantic
 
@@ -20,13 +22,13 @@ async def create_message(data: dict):
 		text = data['caption']
 	else:
 		text = ""
-	date_time = datetime.fromtimestamp(data['date'])
+	#date_time = datetime.fromtimestamp(data['date'])
 	message_json = json.dumps(data, indent=2)
 	message = Message_Pydantic(
     	message_id=data['message_id'],
     	chat_id=data['chat']['id'],
-    	dispatch_time=date_time.strftime("%d.%m.%Y %H:%M:%S"),
-    	sender=data['from']['username'],
+    	dispatch_time=data['date'],
+    	sender=data['from_user']['username'],
     	message_type=data['content_type'],
     	text=text,
     	attachment=message_json
@@ -58,3 +60,8 @@ async def show_chat(chat_id: int):
 			message += f":\n'{d.text}'"
 		chat.append(message)
 	return chat
+
+@messages_router.post("/chat/{chat_id}")
+async def send_from_bot(chat_id: int, text: str):
+	answer = await send_message_from_bot(chat_id, text)
+	return answer

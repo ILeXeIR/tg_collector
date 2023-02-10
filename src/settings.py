@@ -6,6 +6,7 @@ def get_db_url(user, passwd, host, db):
     return f"postgres://{user}:{passwd}@{host}:35432/{db}"
 
 TG_BOT_TOKEN = config("TG_BOT_TOKEN", cast=str, default="")
+TG_BOT_API_URL = "http://127.0.0.1:8000/"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 
 ALGORITHM = "HS256"

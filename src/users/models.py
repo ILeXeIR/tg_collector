@@ -1,8 +1,8 @@
 import datetime
+from uuid import UUID
 
 from typing import Optional
 from pydantic import BaseModel, constr, EmailStr, validator
-from uuid import UUID
 
 
 class User_Pydantic(BaseModel):

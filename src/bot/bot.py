@@ -1,17 +1,18 @@
-import asyncio
 from datetime import datetime
-#import json
+# import json
 import logging
-#import os
-#from pathlib import Path
+# import os
+# from pathlib import Path
 
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand, BotCommandScopeDefault, ChatMemberUpdated
 from aiogram.types.message import ContentType
 from aiogram.filters import Command
-from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, JOIN_TRANSITION
-#import jsonpickle
+from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, \
+                                                JOIN_TRANSITION
+import asyncio
+# import jsonpickle
 import requests
 
 from src import settings 
@@ -66,27 +67,22 @@ async def check_api_connection(message: types.Message):
     await message.answer(str(response.json()))
 
 @dp.my_chat_member(
-    ChatMemberUpdatedFilter(
-        member_status_changed=JOIN_TRANSITION
-    )
+    ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION)
 )
 async def bot_was_added_in_chat(event: ChatMemberUpdated):
     chat_id = event.chat.id 
     await bot.send_message(chat_id=chat_id, text="Alloha!")
 
-
 async def send_message_from_bot(chat_id: int, text: str):
     try:
         await bot.send_message(chat_id=chat_id, text=text)
         return "Done!"
-    except:
+    except Exception:
         return "I can't do that."
 
-if __name__ == '__main__':
-    asyncio.run(dp.start_polling(bot))
 
 async def run_bot():
-    #executor.start_polling(dp, skip_updates=True)
+    # executor.start_polling(dp, skip_updates=True)
     try:
         await bot.set_my_commands(commands, BotCommandScopeDefault())
         await dp.start_polling(bot)

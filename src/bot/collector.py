@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram import Router, types
 import requests
 
-from src import settings 
+from src import settings
 
 
 router = Router()
@@ -29,7 +29,7 @@ async def send_message(message: types.Message):
     data["content_type"] = message.content_type
     make_dict(data)
     response = requests.post(f"{API_URL}messages", json=data)
-    #await message.reply(response.status_code)
+    # await message.reply(response.status_code)
 
 
 """

@@ -2,7 +2,7 @@ from tortoise import fields, models
 
 
 class Messages(models.Model):
-    #The Message model
+    # The Message model
     
     id = fields.CharField(pk=True, max_length=30, generated=False)
     message_id = fields.BigIntField()

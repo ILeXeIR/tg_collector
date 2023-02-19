@@ -1,9 +1,12 @@
 from datetime import datetime
+import json
 
 from aiogram import Router, types
 import requests
 
 from src import settings
+from src.collector.dao import Messages
+from src.collector.models import Message_Pydantic
 
 
 router = Router()
@@ -24,12 +27,33 @@ def make_dict(obj):
 
 @router.message()
 async def send_message(message: types.Message):
+    print("FLAG_1")
     data = dict(message)
     data["date"] = data["date"].strftime("%d.%m.%Y %H:%M:%S")
     data["content_type"] = message.content_type
     make_dict(data)
-    response = requests.post(f"{API_URL}messages", json=data)
+    print(data)
+    #response = requests.post(f"{API_URL}messages", json=data)
     # await message.reply(response.status_code)
+    if data.get('text'):
+        text = data['text']
+    elif data.get('caption'):
+        text = data['caption']
+    else:
+        text = ""
+    message_json = json.dumps(data, indent=2)
+    message_for_db = Message_Pydantic(
+        message_id=data['message_id'],
+        chat_id=data['chat']['id'],
+        dispatch_time=data['date'],
+        sender=data['from_user']['username'],
+        message_type=data['content_type'],
+        text=text,
+        attachment=message_json
+    )
+    message_for_db.id = str(message_for_db.chat_id) + "-" + str(message_for_db.message_id)
+    await Messages.create(**message_for_db.dict())
+    await message.reply("OK")
 
 
 """

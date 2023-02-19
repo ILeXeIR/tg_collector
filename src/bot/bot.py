@@ -12,6 +12,7 @@ from aiogram.filters import Command
 from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, \
                                                 JOIN_TRANSITION
 import asyncio
+from fastapi import APIRouter
 # import jsonpickle
 import requests
 
@@ -30,6 +31,8 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(fsm.router)
 dp.include_router(collector.router)
+
+bot_router = APIRouter()
 
 commands = [
     BotCommand(
@@ -53,6 +56,20 @@ commands = [
         description="Exit from FSM"
     )
 ]
+
+@bot_router.on_event("startup")
+async def on_startup():
+
+    await bot.set_my_commands(commands, BotCommandScopeDefault())
+    await bot.set_webhook(url=settings.WEBHOOK_URL, drop_pending_updates=True)
+
+    # Get current webhook status
+    webhook = await bot.get_webhook_info()
+    print("WEBHOOK_INFO: ", webhook)
+
+@bot_router.on_event("shutdown")
+async def on_shutdown():
+    await bot.delete_webhook()
 
 @dp.message(Command(commands=["start", "help"]))
 async def send_welcome(message: types.Message):

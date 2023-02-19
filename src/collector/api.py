@@ -1,10 +1,11 @@
 from datetime import datetime
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from aiogram import types
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from typing import List
 
-from src.bot.bot import send_message_from_bot
+from src.bot.bot import send_message_from_bot, bot, dp
 from .dao import Messages
 from .models import Message_Pydantic, MessageOUT_Pydantic
 
@@ -16,13 +17,21 @@ async def get_messages():
     return await Messages.all()
 
 @messages_router.post("/")
+async def create_message(update: Request):
+    update_json = await update.json()
+    print("JSON:", update_json)
+    await dp.feed_update(bot, update=types.Update(**update_json))
+
+"""
+@messages_router.post("/")
 async def create_message(data: dict):
+    print("FLAG_4")
     if data.get('text'):
-        ext = data['text']
+        text = data['text']
     elif data.get('caption'):
         text = data['caption']
     else:
-        ext = ""
+        text = ""
     # date_time = datetime.fromtimestamp(data['date'])
     message_json = json.dumps(data, indent=2)
     message = Message_Pydantic(
@@ -36,6 +45,7 @@ async def create_message(data: dict):
     )
     message.id = str(message.chat_id) + "-" + str(message.message_id)
     await Messages.create(**message.dict())
+"""
 
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():

@@ -23,6 +23,14 @@ POSTGRESQL_DATABASE = config("TC_POSTGRESQL_DATABASE", cast=str, default="")
 POSTGRESQL_URL = get_db_url(POSTGRESQL_USERNAME, POSTGRESQL_PASSWORD, 
                             POSTGRESQL_HOSTNAME, POSTGRESQL_DATABASE)
 
+WEBHOOK_HOST = "https://4682-46-36-119-40.eu.ngrok.io"
+WEBHOOK_URL_PATH = "/messages/"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_URL_PATH}"
+
+#   Use LAN address to listen webhooks
+WEBAPP_HOST = "localhost"
+WEBAPP_PORT = 8000
+
 DATABASE_CONFIG = {
     "connections": {"default": POSTGRESQL_URL},
     "apps": {

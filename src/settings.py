@@ -8,7 +8,6 @@ def get_db_url(user, passwd, host, db):
 
 
 TG_BOT_TOKEN = config("TG_BOT_TOKEN", cast=str, default="")
-TG_BOT_API_URL = "http://127.0.0.1:8000/"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 
 ALGORITHM = "HS256"
@@ -26,10 +25,6 @@ POSTGRESQL_URL = get_db_url(POSTGRESQL_USERNAME, POSTGRESQL_PASSWORD,
 WEBHOOK_HOST = "https://4682-46-36-119-40.eu.ngrok.io"
 WEBHOOK_URL_PATH = "/messages/"
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_URL_PATH}"
-
-#   Use LAN address to listen webhooks
-WEBAPP_HOST = "localhost"
-WEBAPP_PORT = 8000
 
 DATABASE_CONFIG = {
     "connections": {"default": POSTGRESQL_URL},

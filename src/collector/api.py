@@ -1,10 +1,13 @@
+from datetime import datetime
+import json
+
 from aiogram import types
 from fastapi import APIRouter, Request
 from typing import List
 
 from src.bot.bot import send_message_from_bot, bot, dp
 from .dao import Messages
-from .models import MessageOUT_Pydantic
+from .models import Message_Pydantic, MessageOUT_Pydantic
 
 
 messages_router = APIRouter()
@@ -15,9 +18,41 @@ async def get_messages():
 
 @messages_router.post("/")
 async def create_message(update: Request):
+    # Save message in DB and send to bot Dispatcher
     update_json = await update.json()
-    await dp.feed_update(bot, update=types.Update(**update_json), 
-                        update_json=update_json)
+    print("UPDATE_JSON: ", update_json)
+    update = types.Update(**update_json)
+    for key in update_json:
+        if key != "update_id":
+            data = update_json[key]
+            if key == "message":
+                data["content_type"] = "message_" + update.message.content_type
+            else:
+                data["content_type"] = key
+            break
+    if data.get("date"):
+        data["date"] = datetime.fromtimestamp(data["date"])
+        data["date"] = data["date"].strftime("%d.%m.%Y %H:%M:%S")
+    id = str(update_json["update_id"])
+    update_json = json.dumps(update_json, indent=2)
+    if data.get("text"):
+        text = data["text"]
+    elif data.get("caption"):
+        text = data["caption"]
+    else:
+        text = ""
+    message_for_db = Message_Pydantic(
+        id=id,
+        message_id=data.get("message_id"),
+        chat_id=data.get("chat", dict()).get("id"),
+        dispatch_time=data.get("date"),
+        sender=data.get("from", dict()).get("username"),
+        message_type=data.get("content_type"),
+        text=text,
+        attachment=update_json
+    )
+    await Messages.create(**message_for_db.dict())
+    await dp.feed_update(bot, update=update)
 
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():

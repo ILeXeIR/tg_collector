@@ -12,7 +12,7 @@ router = Router()
 
 @router.message()
 async def save_message(message: types.Message, update_json: dict):
-    #Save message in DB
+    # Save message in DB
     
     data = update_json["message"]
     data["date"] = datetime.fromtimestamp(data["date"])

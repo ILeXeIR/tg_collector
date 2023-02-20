@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(fsm.router)
-dp.include_router(collector.router)
+# dp.include_router(collector.router)
 
 bot_router = APIRouter()
 

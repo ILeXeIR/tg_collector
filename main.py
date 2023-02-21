@@ -5,7 +5,7 @@ import uvicorn
 from src import settings
 from src.collector.api import messages_router
 from src.users.api import users_router
-from src.bot.bot import bot_router
+from src.bot.api import bot_router
 
 
 app = FastAPI(title="Telegram Collector")
@@ -20,7 +20,8 @@ async def startup():
         app,
         # db_url=settings.POSTGRESQL_URL,
         db_url="sqlite://database/db.sqlite",
-        modules={"models": ["src.users.dao", "src.collector.dao"]},
+        modules={"models": ["src.users.dao", "src.collector.dao",
+                            "src.bot.dao"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )

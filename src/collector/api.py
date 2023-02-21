@@ -5,14 +5,14 @@ from aiogram import types
 from fastapi import APIRouter, Request
 from typing import List
 
-from src.bot.bot import send_message_from_bot, bot, dp
+from src.bot.api import bot, dp
 from .dao import Messages
-from .models import Message_Pydantic, MessageOUT_Pydantic
+from .models import MessagePydantic, MessageOUTPydantic
 
 
 messages_router = APIRouter()
 
-@messages_router.get("/", response_model=List[MessageOUT_Pydantic])
+@messages_router.get("/", response_model=List[MessageOUTPydantic])
 async def get_messages():
     return await Messages.all()
 
@@ -41,7 +41,7 @@ async def create_message(update: Request):
         text = data["caption"]
     else:
         text = ""
-    message_for_db = Message_Pydantic(
+    message_for_db = MessagePydantic(
         id=id,
         message_id=data.get("message_id"),
         chat_id=data.get("chat", dict()).get("id"),
@@ -56,12 +56,13 @@ async def create_message(update: Request):
 
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():
-    data = await Messages.all().distinct().values("chat_id")
-    list_of_chats = sorted([x["chat_id"] for x in data])
-    return list_of_chats
+    list_of_chats = await Messages.all().distinct().values_list("chat_id",
+                                                                flat=True)
+    # list_of_chats = sorted([x["chat_id"] for x in data])
+    return sorted(list_of_chats)
 
 @messages_router.get("/chat_objects/{chat_id}",
-                    response_model=List[MessageOUT_Pydantic])
+                    response_model=List[MessageOUTPydantic])
 async def get_chat_messages(chat_id: int):
     return await Messages.filter(chat_id=chat_id)
 
@@ -79,8 +80,3 @@ async def show_chat(chat_id: int):
             message += f":\n'{d.text}'"
         chat.append(message)
     return chat
-
-@messages_router.post("/chat/{chat_id}")
-async def send_from_bot(chat_id: int, text: str):
-    answer = await send_message_from_bot(chat_id, text)
-    return answer

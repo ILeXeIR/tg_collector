@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, constr
 
 
-class Message_Pydantic(BaseModel):
+class MessagePydantic(BaseModel):
     id: str
     message_id: Optional[int]
     chat_id: Optional[int]
@@ -15,5 +15,5 @@ class Message_Pydantic(BaseModel):
     class Config:
         orm_mode = True
 
-class MessageOUT_Pydantic(Message_Pydantic):
+class MessageOUTPydantic(MessagePydantic):
     attachment: dict

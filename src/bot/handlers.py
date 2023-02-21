@@ -2,6 +2,15 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import ChatMemberUpdated
+from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, \
+                                                JOIN_TRANSITION, \
+                                                LEAVE_TRANSITION
+
+from src import settings
+from src.collector.dao import Messages
+from .dao import ActiveChats
+from .models import ActiveChatPydantic
 
 
 router = Router()
@@ -10,6 +19,24 @@ class RateTheBot(StatesGroup):
     confirm = State()
     rate = State()
 
+@router.message(Command(commands=["start", "help"]))
+async def send_welcome(message: types.Message):
+    await message.reply("Hi! I'm SpanBot!\n"
+                        "I can save your messages in db.\n"
+                        "You may check connection to db with command /check"
+                        " or /rate this bot.")
+
+@router.message(Command(commands=["check"]))
+async def check_api_connection(message: types.Message):
+    try:
+        amount_messages = await Messages.filter(chat_id=message.chat.id).count()
+    except Exception as e:
+        await message.answer("Connection to DB: Error")
+        print(e)
+    else:
+        await message.answer("Connection to DB: OK\n"
+                            f"There are {amount_messages} messages from this "
+                            "chat saved in DB.")
 
 @router.message(Command(commands="rate"))
 async def want_to_rate(message: types.Message, state: FSMContext):
@@ -52,3 +79,16 @@ async def get_bot_rating(message: types.Message, state: FSMContext):
     else:
         await message.reply("Sorry, I don't understand.\n"
                             "Please send your mark from 1 to 5.")
+
+@router.my_chat_member(
+    ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION)
+)
+async def bot_was_added_in_chat(event: ChatMemberUpdated):
+    await ActiveChats.get_or_create(chat_id=event.chat.id)
+    # await bot.send_message(chat_id=chat_id, text="Alloha!")
+
+@router.my_chat_member(
+    ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION)
+)
+async def bot_was_kicked_from_chat(event: ChatMemberUpdated):
+    await ActiveChats.filter(chat_id=event.chat.id).delete()

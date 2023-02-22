@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from typing import List
 
 from src.bot.api import bot, dp
+from src.websocket.api import manager
 from .dao import Messages
 from .models import MessagePydantic, MessageOUTPydantic
 
@@ -51,14 +52,14 @@ async def create_message(update: Request):
         text=text,
         attachment=update_json
     )
-    await Messages.create(**message_for_db.dict())
+    message = await Messages.create(**message_for_db.dict())
     await dp.feed_update(bot, update=update)
+    await manager.broadcast(message=message)
 
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():
     list_of_chats = await Messages.all().distinct().values_list("chat_id",
                                                                 flat=True)
-    # list_of_chats = sorted([x["chat_id"] for x in data])
     return sorted(list_of_chats)
 
 @messages_router.get("/chat_objects/{chat_id}",

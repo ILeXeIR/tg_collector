@@ -3,15 +3,17 @@ from tortoise.contrib.fastapi import register_tortoise, connections
 import uvicorn
 
 from src import settings
+from src.bot.api import bot_router
 from src.collector.api import messages_router
 from src.users.api import users_router
-from src.bot.api import bot_router
+from src.websocket.api import ws_router
 
 
 app = FastAPI(title="Telegram Collector")
 app.include_router(messages_router, prefix="/messages", tags=["messages"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(bot_router, prefix="/bot", tags=["bot"])
+app.include_router(ws_router, prefix="/ws", tags=["ws"])
 
 
 @app.on_event("startup")

@@ -1,6 +1,7 @@
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from fastapi import APIRouter
@@ -69,12 +70,30 @@ async def send_from_bot(chat_id: int, text: str):
     try:
         await bot.send_message(chat_id=chat_id, text=text)
         return "Done!"
-    except Exception:
-        return "I can't do that."
+    except Exception as e:
+        return e
 
+"""
+@bot_router.get("/get_chat/{chat_id}")
+async def get_chat(chat_id: int):
+    return await bot.get_chat(chat_id)
 
+@bot_router.get("/get_chat_member/")
+async def get_chat_member(chat_id: int, user_id: int):
+    return await bot.get_chat_member(chat_id, user_id)
 
+@bot_router.get("/get_chat_member_count/{chat_id}")
+async def get_chat_member_count(chat_id: int):
+    return await bot.get_chat_member_count(chat_id)
 
+@bot_router.get("/get_chat_administrators/{chat_id}")
+async def get_chat_administrators(chat_id: int):
+    return await bot.get_chat_administrators(chat_id)
+
+@bot_router.get("/get_current_state/")
+async def get_current_state(chat_id: int, user_id: int):
+    return await dp.current_state(chat_id=chat_id, user_id=user_id)
+"""
 
 
 

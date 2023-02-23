@@ -21,7 +21,7 @@ async def get_messages():
 async def create_message(update: Request):
     # Save message in DB and send to bot Dispatcher
     update_json = await update.json()
-    print("UPDATE_JSON: ", update_json)
+    # print("UPDATE_JSON: ", update_json)
     update = types.Update(**update_json)
     for key in update_json:
         if key != "update_id":
@@ -42,10 +42,11 @@ async def create_message(update: Request):
         text = data["caption"]
     else:
         text = ""
+    chat_id = data.get("chat", dict()).get("id")
     message_for_db = MessagePydantic(
         id=id,
         message_id=data.get("message_id"),
-        chat_id=data.get("chat", dict()).get("id"),
+        chat_id=chat_id,
         dispatch_time=data.get("date"),
         sender=data.get("from", dict()).get("username"),
         message_type=data.get("content_type"),
@@ -54,7 +55,8 @@ async def create_message(update: Request):
     )
     message = await Messages.create(**message_for_db.dict())
     await dp.feed_update(bot, update=update)
-    await manager.broadcast(message=message)
+    if chat_id is not None:
+        await manager.broadcast(message=message, chat_id=chat_id)
 
 @messages_router.get("/chats", response_model=List[int])
 async def get_list_of_chats():

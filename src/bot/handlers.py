@@ -7,29 +7,28 @@ from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, \
                                                 JOIN_TRANSITION, \
                                                 LEAVE_TRANSITION
 
-from src import settings
-from src.collector.dao import Messages
-from .dao import ActiveChats
-from .models import ActiveChatPydantic
+from src.settings import settings
+from src.collector.dao import Message
+from .dao import ActiveChat
 
 
-router = Router()
+handlers_router = Router()
 
 class RateTheBot(StatesGroup):
     confirm = State()
     rate = State()
 
-@router.message(Command(commands=["start", "help"]))
+@handlers_router.message(Command(commands=["start", "help"]))
 async def send_welcome(message: types.Message):
     await message.reply("Hi! I'm SpanBot!\n"
                         "I can save your messages in db.\n"
                         "You may check connection to db with command /check"
                         " or /rate this bot.")
 
-@router.message(Command(commands=["check"]))
+@handlers_router.message(Command(commands=["check"]))
 async def check_api_connection(message: types.Message):
     try:
-        amount_messages = await Messages.filter(chat_id=message.chat.id).count()
+        amount_messages = await Message.filter(chat_id=message.chat.id).count()
     except Exception as e:
         await message.answer("Connection to DB: Error")
         print(e)
@@ -38,14 +37,14 @@ async def check_api_connection(message: types.Message):
                             f"There are {amount_messages} messages from this "
                             "chat saved in DB.")
 
-@router.message(Command(commands="rate"))
+@handlers_router.message(Command(commands="rate"))
 async def want_to_rate(message: types.Message, state: FSMContext):
     await state.set_state(RateTheBot.confirm)
     await message.reply("Do you want to rate this bot?\n"
                         "(You may end the dialogue with "
                         "command /cancel at any moment)")
 
-@router.message(Command(commands="cancel"))
+@handlers_router.message(Command(commands="cancel"))
 async def cancel_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
@@ -53,7 +52,7 @@ async def cancel_state(message: types.Message, state: FSMContext):
     await state.clear()
     await message.reply("You quitted this dialogue.")
 
-@router.message(RateTheBot.confirm)
+@handlers_router.message(RateTheBot.confirm)
 async def rate_bot(message: types.Message, state: FSMContext):
     if message.text.strip().lower() == "yes":
         await state.set_state(RateTheBot.rate)
@@ -66,7 +65,7 @@ async def rate_bot(message: types.Message, state: FSMContext):
         await message.reply("Sorry, I don't understand.\n"
                             "Please send 'yes' or 'no'.")
 
-@router.message(RateTheBot.rate)
+@handlers_router.message(RateTheBot.rate)
 async def get_bot_rating(message: types.Message, state: FSMContext):
     mark = message.text.strip()
     if mark in ["4", "5"]:
@@ -80,15 +79,15 @@ async def get_bot_rating(message: types.Message, state: FSMContext):
         await message.reply("Sorry, I don't understand.\n"
                             "Please send your mark from 1 to 5.")
 
-@router.my_chat_member(
+@handlers_router.my_chat_member(
     ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION)
 )
 async def bot_was_added_in_chat(event: ChatMemberUpdated):
-    await ActiveChats.get_or_create(chat_id=event.chat.id)
+    await ActiveChat.get_or_create(chat_id=event.chat.id)
     # await bot.send_message(chat_id=chat_id, text="Alloha!")
 
-@router.my_chat_member(
+@handlers_router.my_chat_member(
     ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION)
 )
 async def bot_was_kicked_from_chat(event: ChatMemberUpdated):
-    await ActiveChats.filter(chat_id=event.chat.id).delete()
+    await ActiveChat.filter(chat_id=event.chat.id).delete()

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise, connections
 import uvicorn
 
-from src import settings
+from src.settings import settings
 from src.bot.api import bot_router
 from src.collector.api import messages_router
 from src.users.api import users_router

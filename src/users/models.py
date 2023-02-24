@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, constr, EmailStr, validator
 
 
-class UserPydantic(BaseModel):
+class UserRp(BaseModel):
     id: Optional[UUID]
     username: constr(max_length=30)
     email: EmailStr
@@ -17,7 +17,7 @@ class UserPydantic(BaseModel):
     class Config:
         orm_mode = True
 
-class UserInPydantic(BaseModel):
+class UserRq(BaseModel):
     username: constr(max_length=30)
     email: EmailStr
     real_name: Optional[constr(max_length=50)]

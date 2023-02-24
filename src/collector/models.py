@@ -1,9 +1,10 @@
 from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, constr
 
 
-class MessagePydantic(BaseModel):
-    id: str
+class MessageRq(BaseModel):
     message_id: Optional[int]
     chat_id: Optional[int]
     dispatch_time: Optional[constr(max_length=30)]
@@ -15,5 +16,6 @@ class MessagePydantic(BaseModel):
     class Config:
         orm_mode = True
 
-class MessageOUTPydantic(MessagePydantic):
+class MessageRp(MessageRq):
+    id: UUID
     attachment: dict

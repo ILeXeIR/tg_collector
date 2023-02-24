@@ -1,7 +1,7 @@
 from tortoise import fields, models
 
 
-class Users(models.Model):
+class User(models.Model):
     #The User model
     
     id = fields.UUIDField(pk=True)

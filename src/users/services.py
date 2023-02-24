@@ -1,15 +1,13 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 
+from .dao import User
+from .deps import oauth2_scheme
+from .models import UserRp
 from .security import decode_access_token
-from .dao import Users
-from .models import UserPydantic
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme)) -> UserPydantic:
+        token: str = Depends(oauth2_scheme)) -> UserRp:
     cred_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
@@ -21,7 +19,7 @@ async def get_current_user(
     username: str = payload.get("sub")
     if username is None:
         raise cred_exception
-    current_user = await Users.get_or_none(username=username)
+    current_user = await User.get_or_none(username=username)
     if current_user is None:
         raise cred_exception
     return current_user

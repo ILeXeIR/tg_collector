@@ -1,10 +1,10 @@
 from tortoise import fields, models
 
 
-class Messages(models.Model):
+class Message(models.Model):
     # The Message model
     
-    id = fields.CharField(pk=True, max_length=30, generated=False)
+    id = fields.UUIDField(pk=True)
     message_id = fields.BigIntField(null=True)
     chat_id = fields.BigIntField(null=True)
     dispatch_time = fields.CharField(max_length=30, null=True)

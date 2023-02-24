@@ -1,7 +1,7 @@
 from tortoise import fields, models
 
 
-class ActiveChats(models.Model):
+class ActiveChat(models.Model):
     # A list of active chats
 
     chat_id = fields.BigIntField(pk=True, generated=False)

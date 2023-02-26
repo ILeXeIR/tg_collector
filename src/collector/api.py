@@ -46,6 +46,7 @@ async def create_message(update: Request):
         chat_id=chat_id,
         dispatch_time=data.get("date"),
         sender=data.get("from", dict()).get("username"),
+        sender_id=data.get("from", dict()).get("id"),
         message_type=data.get("content_type"),
         text=text,
         attachment=update_json

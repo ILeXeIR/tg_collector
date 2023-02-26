@@ -9,6 +9,7 @@ class Message(models.Model):
     chat_id = fields.BigIntField(null=True)
     dispatch_time = fields.CharField(max_length=30, null=True)
     sender = fields.CharField(max_length=50, null=True)
+    sender_id = fields.BigIntField(null=True)
     message_type = fields.CharField(max_length=30)
     text = fields.TextField(null=True)
     attachment = fields.JSONField()

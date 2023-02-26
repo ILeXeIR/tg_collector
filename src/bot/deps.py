@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
+storage=MemoryStorage()
+dp = Dispatcher(storage=storage)
 dp.include_router(handlers_router)
 
 bot_router = APIRouter()

@@ -9,6 +9,7 @@ class MessageRq(BaseModel):
     chat_id: Optional[int]
     dispatch_time: Optional[constr(max_length=30)]
     sender: Optional[constr(max_length=50)]
+    sender_id: Optional[int]
     message_type: constr(max_length=30)
     text: Optional[str]
     attachment: str

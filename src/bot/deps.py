@@ -48,7 +48,11 @@ commands = [
 @bot_router.on_event("startup")
 async def on_startup():
     await bot.set_my_commands(commands, BotCommandScopeDefault())
-    await bot.set_webhook(url=settings.WEBHOOK_URL, drop_pending_updates=True)
+    await bot.set_webhook(
+        url=settings.WEBHOOK_URL, 
+        secret_token=settings.WEBHOOK_TOKEN,
+        drop_pending_updates=True
+    )
 
     # Get current webhook status
     # webhook = await bot.get_webhook_info()

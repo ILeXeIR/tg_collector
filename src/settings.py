@@ -1,4 +1,7 @@
+import secrets
+
 from pydantic import BaseSettings
+
 
 class Settings(BaseSettings):
 
@@ -11,9 +14,10 @@ class Settings(BaseSettings):
                         "e81e6c2e7783465f245742fbfc38df342"
     SECRET_KEY: str = default_key
 
-    WEBHOOK_HOST: str = "https://b7a3-37-252-80-171.eu.ngrok.io"
+    WEBHOOK_HOST: str = "https://212e-37-252-80-171.eu.ngrok.io"
     WEBHOOK_URL_PATH: str = "/messages/"
     WEBHOOK_URL: str = f"{WEBHOOK_HOST}{WEBHOOK_URL_PATH}"
+    WEBHOOK_TOKEN: str = secrets.token_hex(16)
 
     class Config():
         env_file = ".env"

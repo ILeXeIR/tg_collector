@@ -6,6 +6,7 @@ from fastapi import Depends, Request
 from typing import List
 
 from src.bot.deps import bot, dp
+from src.settings import settings
 from src.users.models import UserRp
 from src.users.services import get_current_user
 from src.websocket.deps import manager
@@ -22,6 +23,9 @@ async def get_messages(
 @messages_router.post("/")
 async def create_message(update: Request):
     # Save message in DB and send to bot Dispatcher
+    webhook_token = update.headers.get("X-Telegram-Bot-Api-Secret-Token")
+    if webhook_token != settings.WEBHOOK_TOKEN:
+        return None
     update_json = await update.json()
     # print("UPDATE_JSON: ", update_json)
     update = types.Update(**update_json)
@@ -62,9 +66,9 @@ async def create_message(update: Request):
 @messages_router.get("/chats")
 async def get_list_of_chats(
         current_user: UserRp = Depends(get_current_user)) -> List[int]:
-    list_of_chats = await Message.all().distinct().values_list("chat_id",
-                                                                flat=True)
-    return sorted(list_of_chats)
+    list_of_chats = Message.exclude(chat_id=None).order_by("chat_id")
+    list_of_chats = list_of_chats.distinct().values_list("chat_id", flat=True)
+    return await list_of_chats
 
 @messages_router.get("/chat_objects/{chat_id}")
 async def get_chat_messages(

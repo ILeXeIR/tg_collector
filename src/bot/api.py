@@ -1,19 +1,26 @@
 from typing import List
 
 from aiogram.fsm.storage.base import StorageKey
+from fastapi import Depends
 
 from src.collector.dao import Message
+from src.users.models import UserRp
+from src.users.services import get_current_user
 from .dao import ActiveChat
 from .deps import bot, bot_router, storage
 
 
 @bot_router.get("/active_chats")
-async def get_active_chats() -> List[int]:
+async def get_active_chats(
+        current_user: UserRp = Depends(get_current_user)) -> List[int]:
     return await ActiveChat.all().order_by("chat_id").values_list("chat_id", 
                                                                     flat=True)
 
 @bot_router.post("/chat/{chat_id}")
-async def send_from_bot(chat_id: int, text: str) -> str:
+async def send_from_bot(
+        chat_id: int, text: str,
+        current_user: UserRp = Depends(get_current_user)
+    ) -> str:
     try:
         await bot.send_message(chat_id=chat_id, text=text)
         return "Done!"
@@ -21,13 +28,17 @@ async def send_from_bot(chat_id: int, text: str) -> str:
         return e
 
 @bot_router.get("/users")
-async def get_users(chat_id: int):
+async def get_users(
+        chat_id: int, current_user: UserRp = Depends(get_current_user)
+    ) -> List[int]:
     users_list = Message.filter(chat_id=chat_id).order_by("sender_id")
     users_list = users_list.distinct().values_list("sender_id", flat=True)
     return await users_list
 
 @bot_router.get("/state")
-async def get_states(chat_id: int):
+async def get_states(
+        chat_id: int, current_user: UserRp = Depends(get_current_user)
+    ) -> dict:
     users_list = await get_users(chat_id)
     users_states = {}
     for user_id in users_list:

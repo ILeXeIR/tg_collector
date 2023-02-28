@@ -2,10 +2,12 @@ from datetime import datetime
 import json
 
 from aiogram import types
-from fastapi import Request
+from fastapi import Depends, Request
 from typing import List
 
 from src.bot.deps import bot, dp
+from src.users.models import UserRp
+from src.users.services import get_current_user
 from src.websocket.deps import manager
 from .dao import Message
 from .deps import messages_router
@@ -13,7 +15,8 @@ from .models import MessageRq, MessageRp
 
 
 @messages_router.get("/")
-async def get_messages() -> List[MessageRp]:
+async def get_messages(
+        current_user: UserRp = Depends(get_current_user)) -> List[MessageRp]:
     return await Message.all()
 
 @messages_router.post("/")
@@ -57,17 +60,22 @@ async def create_message(update: Request):
         await manager.broadcast(message=message, chat_id=chat_id)
 
 @messages_router.get("/chats")
-async def get_list_of_chats() -> List[int]:
+async def get_list_of_chats(
+        current_user: UserRp = Depends(get_current_user)) -> List[int]:
     list_of_chats = await Message.all().distinct().values_list("chat_id",
                                                                 flat=True)
     return sorted(list_of_chats)
 
 @messages_router.get("/chat_objects/{chat_id}")
-async def get_chat_messages(chat_id: int) -> List[MessageRp]:
+async def get_chat_messages(
+        chat_id: int, current_user: UserRp = Depends(get_current_user)
+    ) -> List[MessageRp]:
     return await Message.filter(chat_id=chat_id)
 
 @messages_router.get("/chat/{chat_id}")
-async def show_chat(chat_id: int) -> List[str]:
+async def show_chat(
+        chat_id: int, current_user: UserRp = Depends(get_current_user)
+    ) -> List[str]:
     data = await Message.filter(chat_id=chat_id)
     chat = []
     for d in data:

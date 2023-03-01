@@ -10,13 +10,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ALGORITHM: str = "HS256"
 
-    default_key: str = "8267343f61522a153a2e21b3c509f0e"\
-                        "e81e6c2e7783465f245742fbfc38df342"
-    SECRET_KEY: str = default_key
+    SECRET_KEY: str
 
-    WEBHOOK_HOST: str = "https://212e-37-252-80-171.eu.ngrok.io"
-    WEBHOOK_URL_PATH: str = "/messages/"
-    WEBHOOK_URL: str = f"{WEBHOOK_HOST}{WEBHOOK_URL_PATH}"
+    WEBHOOK_URL: str
     WEBHOOK_TOKEN: str = secrets.token_hex(16)
 
     class Config():

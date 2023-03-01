@@ -1,8 +1,9 @@
 import datetime
 from uuid import UUID
 
-from typing import Optional
+from fastapi import HTTPException
 from pydantic import BaseModel, constr, EmailStr, validator
+from typing import Optional
 
 
 class UserRp(BaseModel):
@@ -30,7 +31,7 @@ class UserRq(BaseModel):
     @validator("password2")
     def password_match(cls, v, values, **kwargs):
         if "password" in values and v != values["password"]:
-            raise ValueError("passwords don't match")
+            raise HTTPException(400, detail="passwords don't match")
         return v
 
 class Token(BaseModel):

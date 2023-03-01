@@ -9,13 +9,11 @@ from src.settings import settings
 from .handlers import handlers_router
 
 
-TOKEN = settings.TG_BOT_TOKEN
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
-bot = Bot(token=TOKEN)
+bot = Bot(token=settings.TG_BOT_TOKEN)
 storage=MemoryStorage()
 dp = Dispatcher(storage=storage)
 dp.include_router(handlers_router)

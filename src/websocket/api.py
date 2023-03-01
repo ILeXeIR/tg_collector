@@ -2,11 +2,12 @@ import json
 
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 
-from src.bot.api import send_from_bot
+from src.bot.services import send_from_bot
 from src.collector.dao import Message
 from src.users.models import UserRp
 from src.users.services import get_current_user
-from .deps import get_json_from_message, manager, ws_router
+from .deps import manager, ws_router
+from .utils import get_json_from_message
 
 
 @ws_router.websocket("/{chat_id}")

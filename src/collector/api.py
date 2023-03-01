@@ -1,67 +1,26 @@
-from datetime import datetime
-import json
-
-from aiogram import types
 from fastapi import Depends, Request
 from typing import List
 
-from src.bot.deps import bot, dp
 from src.settings import settings
 from src.users.models import UserRp
 from src.users.services import get_current_user
-from src.websocket.deps import manager
 from .dao import Message
 from .deps import messages_router
-from .models import MessageRq, MessageRp
+from .models import MessageRp
+from .services import handle_message
 
 
 @messages_router.get("/")
 async def get_messages(
         current_user: UserRp = Depends(get_current_user)) -> List[MessageRp]:
-    return await Message.all()
+    messages = await Message.all()
+    return [MessageRp.from_orm(x) for x in messages]
 
 @messages_router.post("/")
-async def create_message(update: Request):
-    # Save message in DB and send to bot Dispatcher
+async def save_message(update: Request):
     webhook_token = update.headers.get("X-Telegram-Bot-Api-Secret-Token")
-    if webhook_token != settings.WEBHOOK_TOKEN:
-        return None
-    update_json = await update.json()
-    # print("UPDATE_JSON: ", update_json)
-    update = types.Update(**update_json)
-    for key in update_json:
-        if key != "update_id":
-            data = update_json[key]
-            if key == "message":
-                data["content_type"] = "message_" + update.message.content_type
-            else:
-                data["content_type"] = key
-            break
-    if data.get("date"):
-        data["date"] = datetime.fromtimestamp(data["date"])
-        data["date"] = data["date"].strftime("%d.%m.%Y %H:%M:%S")
-    update_json = json.dumps(update_json, indent=2)
-    if data.get("text"):
-        text = data["text"]
-    elif data.get("caption"):
-        text = data["caption"]
-    else:
-        text = ""
-    chat_id = data.get("chat", dict()).get("id")
-    message_for_db = MessageRq(
-        message_id=data.get("message_id"),
-        chat_id=chat_id,
-        dispatch_time=data.get("date"),
-        sender=data.get("from", dict()).get("username"),
-        sender_id=data.get("from", dict()).get("id"),
-        message_type=data.get("content_type"),
-        text=text,
-        attachment=update_json
-    )
-    message = await Message.create(**message_for_db.dict())
-    await dp.feed_update(bot, update=update)
-    if chat_id is not None:
-        await manager.broadcast(message=message, chat_id=chat_id)
+    if webhook_token == settings.WEBHOOK_TOKEN:
+        await handle_message(update=update)
 
 @messages_router.get("/chats")
 async def get_list_of_chats(

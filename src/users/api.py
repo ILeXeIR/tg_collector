@@ -2,6 +2,7 @@ import datetime
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from tortoise.exceptions import IntegrityError
 from typing import List
 
 from .security import hash_password, verify_password, create_access_token
@@ -32,28 +33,31 @@ async def get_user_by_email(
     user_obj = await User.get_or_none(email=email)
     if not user_obj:
         raise HTTPException(400, detail="User not found")
-    return user_obj
+    return UserRp.from_orm(user_obj)
 
 @users_router.post("/")
 async def create_user(user: UserRq) -> UserRp:
     password_hash = hash_password(user.password)
-    user_obj = await User.create(password_hash=password_hash,
-                                **user.dict(exclude_unset=True))
-    return user_obj
+    try:
+        user_obj = await User.create(password_hash=password_hash,
+                                    **user.dict(exclude_unset=True))
+    except IntegrityError:
+        raise HTTPException(400, detail="Username and Email must be unique")
+    else:
+        return user_obj
 
-@users_router.put("/{id}")
-async def update_user(id: str, user: UserRq, 
+@users_router.put("/")
+async def update_user(user: UserRq,
                     current_user: UserRp = Depends(get_current_user)) -> UserRp:
-    user_obj = await User.get_or_none(id=id)
-    if not user_obj:
-        raise HTTPException(400, detail="User not found")
-    elif user_obj.id != current_user.id:
-        raise HTTPException(400, detail="You can't update other users")
+    user_obj = await User.get(id=current_user.id)
     user_obj.password_hash = hash_password(user.password)
-    for field_name, field_value in user.dict(exclude_unset=True).items():
-        setattr(user_obj, field_name, field_value)
-    await user_obj.save()
-    return user_obj
+    user_obj.update_from_dict(user.dict())
+    try:
+        await user_obj.save()
+    except IntegrityError:
+        raise HTTPException(400, detail="Username and Email must be unique")
+    else:
+        return user_obj
 
 @users_router.post("/login")
 async def login(login: OAuth2PasswordRequestForm = Depends()) -> Token:

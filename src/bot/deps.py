@@ -1,11 +1,11 @@
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from fastapi import APIRouter
 
 from src.settings import settings
+from .dao import CustomStorage
 from .handlers import handlers_router
 
 
@@ -14,8 +14,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=settings.TG_BOT_TOKEN)
-storage=MemoryStorage()
-dp = Dispatcher(storage=storage)
+dp = Dispatcher(storage=CustomStorage())
 dp.include_router(handlers_router)
 
 bot_router = APIRouter()

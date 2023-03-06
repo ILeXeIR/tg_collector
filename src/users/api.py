@@ -13,8 +13,7 @@ from .models import UserRp, UserRq, Token
 
 
 @users_router.get("/")
-async def get_users(
-        current_user: UserRp = Depends(get_current_user)) -> List[UserRp]:
+async def get_users() -> List[UserRp]:
     return await User.all()
 
 @users_router.get("/id/{id}")

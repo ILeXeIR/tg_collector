@@ -12,8 +12,10 @@ class ActiveChat(models.Model):
     def __str__(self):
         return self.chat_id
 
+
 class CustomStorageMeta(type(models.Model), type(BaseStorage)):
     pass
+
 
 class CustomStorage(models.Model, BaseStorage, metaclass=CustomStorageMeta):
     # A table for states of FSM

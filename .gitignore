@@ -1,6 +1,6 @@
 __pycache__/
-.env
 env/
-old/
-downloads/
+.idea/
+.pytest_cache/
+.env
 *.sqlite

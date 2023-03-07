@@ -5,7 +5,7 @@ from tortoise import Tortoise
 
 from main import app
 from src.users.dao import User
-from src.users.security import hash_password
+from src.users.security import create_access_token, hash_password
 
 
 """
@@ -40,7 +40,7 @@ def anyio_backend():
 
 @pytest.fixture(scope="session", name="ac")
 async def create_async_client():
-    async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
+    async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
         yield ac
 
 @pytest.fixture()
@@ -64,3 +64,9 @@ async def db_with_users(create_test_db):
         await User.create(**test_user)
     yield
     await User.all().delete()
+
+@pytest.fixture(name="token")
+async def create_test_token(db_with_users):
+    test_token = create_access_token({"sub": "user2"})
+    bearer_token = "Bearer " + test_token
+    yield bearer_token

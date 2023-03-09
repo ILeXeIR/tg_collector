@@ -26,7 +26,7 @@ def decode_access_token(token: str):
     try:
         encoded_jwt = jwt.decode(token, settings.SECRET_KEY,
                                 algorithms=settings.ALGORITHM)
-    except jwt.JWSError:
+    except JWTError:
         return None
     else:
         return encoded_jwt

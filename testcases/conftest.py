@@ -4,6 +4,8 @@ from tortoise import Tortoise
 # from tortoise.contrib.fastapi import register_tortoise, connections
 
 from main import app
+from src.bot.dao import ActiveChat, CustomStorage
+from src.collector.dao import Message
 from src.users.dao import User
 from src.users.security import create_access_token, hash_password
 
@@ -70,3 +72,69 @@ async def create_test_token(db_with_users):
     test_token = create_access_token({"sub": "user2"})
     bearer_token = "Bearer " + test_token
     yield bearer_token
+
+@pytest.fixture()
+async def db_with_messages(create_test_db):
+    test_messages = [
+        {
+            "message_id": 100,
+            "chat_id": 1,
+            "dispatch_time": "01.02.2023 14:15:16",
+            "sender": "alice",
+            "sender_id": 1000,
+            "message_type": "message_text",
+            "text": "Hi, Bob",
+            "attachment": str("{}")
+        },
+        {
+            "message_id": 101,
+            "chat_id": 1,
+            "dispatch_time": "01.02.2023 14:16:16",
+            "sender": "bob",
+            "sender_id": 1001,
+            "message_type": "message_text",
+            "text": "Hi, Alice",
+            "attachment": str("{}")
+        },
+        {
+            "message_id": 200,
+            "chat_id": 2,
+            "dispatch_time": "01.02.2023 14:17:16",
+            "sender": "alice",
+            "sender_id": 1000,
+            "message_type": "message_text",
+            "text": "Hello, world!",
+            "attachment": str("{}")
+        }
+    ]
+    for message in test_messages:
+        await Message.create(**message)
+    yield
+    await Message.all().delete()
+
+@pytest.fixture()
+async def db_with_chats(create_test_db):
+    test_chat_ids = [1, 2]
+    for chat_id in test_chat_ids:
+        await ActiveChat.create(chat_id=chat_id)
+    yield
+    await ActiveChat.all().delete()
+
+@pytest.fixture()
+async def db_with_states(create_test_db):
+    test_states = [
+        {
+            "chat_id": 1,
+            "user_id": 1000,
+            "state": "RateTheBot:rate"
+        },
+        {
+            "chat_id": 1,
+            "user_id": 1001,
+            "state": "RateTheBot:confirm"
+        }
+    ]
+    for state in test_states:
+        await CustomStorage.create(**state)
+    yield
+    await CustomStorage.all().delete()

@@ -1,5 +1,3 @@
-import json
-
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 
 from src.bot.services import send_from_bot

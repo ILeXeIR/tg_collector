@@ -1,5 +1,8 @@
 import pytest
 
+import src.bot.api
+from testcases.conftest import stub_send_from_bot
+
 
 class TestGetActiveChats():
 
@@ -65,3 +68,50 @@ class TestGetChatStates():
         response = await ac.get(f"/bot/chat_states/{chat_id}", headers=headers)
         assert response.status_code == 200
         assert response.json() == []
+
+
+class TestSendInChat():
+
+    @pytest.mark.anyio
+    async def test_send_in_chat(self, ac, token, mocker):
+        headers = {"Authorization": token}
+        chat_id = 1
+        text = "test text"
+        mocker.patch.object(src.bot.api, "send_from_bot",
+                            new=stub_send_from_bot)
+        response = await ac.post(f"/bot/chat/{chat_id}", headers=headers,
+                                     params={"text": text})
+        assert response.status_code == 200
+        assert response.json() == "Done!"
+
+    @pytest.mark.anyio
+    async def test_send_in_chat_unauthorized(self, ac):
+        chat_id = 1
+        text = "test text"
+        response = await ac.post(f"/bot/chat/{chat_id}", params={"text": text})
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Not authenticated"
+
+    @pytest.mark.anyio
+    async def test_send_in_inactive_chat(self, ac, token, mocker):
+        headers = {"Authorization": token}
+        chat_id = 10
+        text = "test text"
+        mocker.patch.object(src.bot.api, "send_from_bot",
+                            new=stub_send_from_bot)
+        response = await ac.post(f"/bot/chat/{chat_id}", headers=headers,
+                                 params={"text": text})
+        assert response.status_code == 200
+        assert response.json() == "Can't send message in this chat"
+
+    @pytest.mark.anyio
+    async def test_send_empty_message(self, ac, token, mocker):
+        headers = {"Authorization": token}
+        chat_id = 1
+        text = ""
+        mocker.patch.object(src.bot.api, "send_from_bot",
+                            new=stub_send_from_bot)
+        response = await ac.post(f"/bot/chat/{chat_id}", headers=headers,
+                                 params={"text": text})
+        assert response.status_code == 200
+        assert response.json() == "Message can't be empty."

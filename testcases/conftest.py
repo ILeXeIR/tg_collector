@@ -138,3 +138,12 @@ async def db_with_states(create_test_db):
         await CustomStorage.create(**state)
     yield
     await CustomStorage.all().delete()
+
+async def stub_send_from_bot(chat_id: int, text: str):
+    active_chats = [1, 2, 3]
+    if not text:
+        return "Message can't be empty."
+    if chat_id in active_chats:
+        return "Done!"
+    else:
+        return "Can't send message in this chat"

@@ -10,7 +10,7 @@ from .utils import get_json_from_message
 
 @ws_router.websocket("/{chat_id}")
 async def websocket_chat(websocket: WebSocket, chat_id: int,
-                        current_user: UserRp = Depends(get_current_user)):
+                         current_user: UserRp = Depends(get_current_user)):
     await manager.connect(websocket, chat_id=chat_id)
     chat = await Message.filter(chat_id=chat_id)
     for message in chat:

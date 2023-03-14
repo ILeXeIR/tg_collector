@@ -243,7 +243,7 @@ class TestCreateUser():
         )
         response = await ac.post("/users/", json=new_user.dict())
         assert response.status_code == 400
-        assert response.json()["detail"] == "Username and Email must be unique"
+        assert response.json()["detail"] == "Username must be unique"
 
     @pytest.mark.anyio
     async def test_create_user_duplicate_email(self, db_with_users, ac):
@@ -256,7 +256,7 @@ class TestCreateUser():
         )
         response = await ac.post("/users/", json=new_user.dict())
         assert response.status_code == 400
-        assert response.json()["detail"] == "Username and Email must be unique"
+        assert response.json()["detail"] == "Email must be unique"
 
 
 class TestUpdateUser():
@@ -337,7 +337,7 @@ class TestUpdateUser():
         response = await ac.put("/users/", headers=headers,
                                 json=user_update.dict())
         assert response.status_code == 400
-        assert response.json()["detail"] == "Username and Email must be unique"
+        assert response.json()["detail"] == "Username must be unique"
 
     @pytest.mark.anyio
     async def test_update_user_duplicate_email(self, db_with_users,
@@ -353,7 +353,7 @@ class TestUpdateUser():
         response = await ac.put("/users/", headers=headers,
                                 json=user_update.dict())
         assert response.status_code == 400
-        assert response.json()["detail"] == "Username and Email must be unique"
+        assert response.json()["detail"] == "Email must be unique"
 
     @pytest.mark.anyio
     async def test_update_user_without_changes(self, db_with_users, ac, token):

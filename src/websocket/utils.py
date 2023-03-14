@@ -7,10 +7,11 @@ from src.collector.dao import Message
 
 
 def get_json_from_message(message: Message) -> str:
-    #Because of error: 'Object of type UUID is not JSON serializable'
+    # Because of error: 'Object of type UUID is not JSON serializable'
     message_dict = dict(message)
     message_dict["id"] = str(message_dict["id"])
     return json.dumps(message_dict, indent=2)
+
 
 class ConnectionManager:
     def __init__(self):

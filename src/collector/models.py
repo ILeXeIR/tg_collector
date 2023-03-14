@@ -17,6 +17,7 @@ class MessageRq(BaseModel):
     class Config:
         orm_mode = True
 
+
 class MessageRp(MessageRq):
     id: UUID
     attachment: dict

@@ -83,6 +83,7 @@ class TestGetChatMessages():
         error_text = "value is not a valid integer"
         assert response.json()["detail"][0]["msg"] == error_text
 
+
 class TestSaveMessage():
 
     update = {
@@ -111,7 +112,7 @@ class TestSaveMessage():
         assert response.status_code == 200
         message = await Message.filter(message_id=300).first()
         assert message.message_id == 300
-        assert message.attachment["message"]["message_id"] ==300
+        assert message.attachment["message"]["message_id"] == 300
         assert message.chat_id == 3
         assert message.sender == "john"
         assert message.sender_id == 1002

@@ -14,9 +14,11 @@ from .dao import ActiveChat
 
 handlers_router = Router()
 
+
 class RateTheBot(StatesGroup):
     confirm = State()
     rate = State()
+
 
 @handlers_router.message(Command(commands=["start", "help"]))
 async def send_welcome(message: types.Message):
@@ -24,6 +26,7 @@ async def send_welcome(message: types.Message):
                         "I can save your messages in db.\n"
                         "You may check connection to db with command /check"
                         " or /rate this bot.")
+
 
 @handlers_router.message(Command(commands=["check"]))
 async def check_api_connection(message: types.Message):
@@ -34,8 +37,9 @@ async def check_api_connection(message: types.Message):
         print(e)
     else:
         await message.answer("Connection to DB: OK\n"
-                            f"There are {amount_messages} messages from this "
-                            "chat saved in DB.")
+                             f"There are {amount_messages} messages from this "
+                             "chat saved in DB.")
+
 
 @handlers_router.message(Command(commands="rate"))
 async def want_to_rate(message: types.Message, state: FSMContext):
@@ -44,13 +48,15 @@ async def want_to_rate(message: types.Message, state: FSMContext):
                         "(You may end the dialogue with "
                         "command /cancel at any moment)")
 
+
 @handlers_router.message(Command(commands="cancel"))
 async def cancel_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         return None
     await state.clear()
-    await message.reply("You quitted this dialogue.")
+    await message.reply("You quit this dialogue.")
+
 
 @handlers_router.message(RateTheBot.confirm)
 async def rate_bot(message: types.Message, state: FSMContext):
@@ -64,6 +70,7 @@ async def rate_bot(message: types.Message, state: FSMContext):
     else:
         await message.reply("Sorry, I don't understand.\n"
                             "Please send 'yes' or 'no'.")
+
 
 @handlers_router.message(RateTheBot.rate)
 async def get_bot_rating(message: types.Message, state: FSMContext):
@@ -79,12 +86,14 @@ async def get_bot_rating(message: types.Message, state: FSMContext):
         await message.reply("Sorry, I don't understand.\n"
                             "Please send your mark from 1 to 5.")
 
+
 @handlers_router.my_chat_member(
     ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION)
 )
 async def bot_was_added_in_chat(event: ChatMemberUpdated):
     await ActiveChat.get_or_create(chat_id=event.chat.id)
-    # await bot.send_message(chat_id=chat_id, text="Alloha!")
+    # await bot.send_message(chat_id=chat_id, text="Aloha!")
+
 
 @handlers_router.my_chat_member(
     ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION)

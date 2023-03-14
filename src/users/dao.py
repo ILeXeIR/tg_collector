@@ -2,7 +2,7 @@ from tortoise import fields, models
 
 
 class User(models.Model):
-    #The User model
+    # The User model
     
     id = fields.UUIDField(pk=True)
     username = fields.CharField(max_length=30, unique=True)

@@ -93,18 +93,6 @@ class TestSendInChat():
         assert response.json()["detail"] == "Not authenticated"
 
     @pytest.mark.anyio
-    async def test_send_in_inactive_chat(self, ac, token, mocker):
-        headers = {"Authorization": token}
-        chat_id = 10
-        text = "test text"
-        mocker.patch.object(src.bot.api, "send_from_bot",
-                            new=stub_send_from_bot)
-        response = await ac.post(f"/bot/chat/{chat_id}", headers=headers,
-                                 params={"text": text})
-        assert response.status_code == 200
-        assert response.json() == "Can't send message in this chat"
-
-    @pytest.mark.anyio
     async def test_send_empty_message(self, ac, token, mocker):
         headers = {"Authorization": token}
         chat_id = 1

@@ -42,6 +42,7 @@ commands = [
     )
 ]
 
+
 @bot_router.on_event("startup")
 async def on_startup():
     await bot.set_my_commands(commands, BotCommandScopeDefault())
@@ -54,6 +55,7 @@ async def on_startup():
     # Get current webhook status
     # webhook = await bot.get_webhook_info()
     # print("WEBHOOK_INFO: ", webhook)
+
 
 @bot_router.on_event("shutdown")
 async def on_shutdown():

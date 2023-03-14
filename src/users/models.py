@@ -11,12 +11,13 @@ class UserRp(BaseModel):
     username: constr(max_length=30)
     email: EmailStr
     real_name: Optional[constr(max_length=50)]
-    password_hash : constr(max_length=128)
-    created_at : datetime.datetime
-    modified_at : datetime.datetime
+    password_hash: constr(max_length=128)
+    created_at: datetime.datetime
+    modified_at: datetime.datetime
 
     class Config:
         orm_mode = True
+
 
 class UserRq(BaseModel):
     username: constr(max_length=30)
@@ -33,6 +34,7 @@ class UserRq(BaseModel):
         if "password" in values and v != values["password"]:
             raise HTTPException(400, detail="passwords don't match")
         return v
+
 
 class Token(BaseModel):
     access_token: str

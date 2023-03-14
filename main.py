@@ -28,9 +28,11 @@ async def startup():
         add_exception_handlers=True,
     )
 
+
 @app.on_event("shutdown")
 async def shutdown():
     await connections.close_all()
+
 
 @app.get("/")
 async def read_root():

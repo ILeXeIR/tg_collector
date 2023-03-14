@@ -25,6 +25,8 @@ async def create_test_db():
     yield
     connections.close_all()
 """
+
+
 @pytest.fixture(scope="session")
 async def create_test_db():
     await Tortoise.init(
@@ -36,14 +38,17 @@ async def create_test_db():
     yield
     await Tortoise._drop_databases()
 
+
 @pytest.fixture(scope="session")
 def anyio_backend():
     return "asyncio"
+
 
 @pytest.fixture(scope="session", name="ac")
 async def create_async_client():
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
         yield ac
+
 
 @pytest.fixture()
 async def db_with_users(create_test_db):
@@ -67,11 +72,13 @@ async def db_with_users(create_test_db):
     yield
     await User.all().delete()
 
+
 @pytest.fixture(name="token")
 async def create_test_token(db_with_users):
     test_token = create_access_token({"sub": "user2"})
     bearer_token = "Bearer " + test_token
     yield bearer_token
+
 
 @pytest.fixture()
 async def db_with_messages(create_test_db):
@@ -112,6 +119,7 @@ async def db_with_messages(create_test_db):
     yield
     await Message.all().delete()
 
+
 @pytest.fixture()
 async def db_with_chats(create_test_db):
     test_chat_ids = [1, 2]
@@ -119,6 +127,7 @@ async def db_with_chats(create_test_db):
         await ActiveChat.create(chat_id=chat_id)
     yield
     await ActiveChat.all().delete()
+
 
 @pytest.fixture()
 async def db_with_states(create_test_db):
@@ -139,11 +148,10 @@ async def db_with_states(create_test_db):
     yield
     await CustomStorage.all().delete()
 
+
 async def stub_send_from_bot(chat_id: int, text: str):
     active_chats = [1, 2, 3]
-    if not text:
+    if not text.strip():
         return "Message can't be empty."
     if chat_id in active_chats:
         return "Done!"
-    else:
-        return "Can't send message in this chat"

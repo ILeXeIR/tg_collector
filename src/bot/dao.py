@@ -28,24 +28,17 @@ class CustomStorage(models.Model, BaseStorage, metaclass=CustomStorageMeta):
     async def get_state(self, bot: Bot, key: StorageKey) -> Optional[str]:
         state_obj = await self.get_or_none(chat_id=key.chat_id,
                                            user_id=key.user_id)
-        if state_obj is None:
-            return None
-        else:
-            return state_obj.state
+        return state_obj.state if state_obj is not None else None
 
     async def set_state(
             self, bot: Bot, key: StorageKey, state: StateType) -> None:
-        if state is None:
-            await self.filter(chat_id=key.chat_id, user_id=key.user_id).delete()
-        else:
-            state_obj, _ = await self.get_or_create(
+        await self.filter(chat_id=key.chat_id, user_id=key.user_id).delete()
+        if state is not None:
+            await self.create(
                 chat_id=key.chat_id,
                 user_id=key.user_id,
-                defaults={"state": state.state}
+                state=state.state
             )
-            if state_obj.state != state.state:
-                state_obj.state = state.state
-                await state_obj.save()
 
     async def set_data(self, bot: Bot, key: StorageKey, data: dict):
         pass
@@ -53,5 +46,5 @@ class CustomStorage(models.Model, BaseStorage, metaclass=CustomStorageMeta):
     async def get_data(self, bot: Bot, key: StorageKey):
         pass
 
-    async def close():
+    async def close(self):
         pass

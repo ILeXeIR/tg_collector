@@ -1,4 +1,5 @@
 from fastapi import Depends, Request
+from pydantic import parse_obj_as
 from typing import List
 
 from src.settings import settings
@@ -14,7 +15,7 @@ from .services import handle_message
 async def get_messages(
         current_user: UserRp = Depends(get_current_user)) -> List[MessageRp]:
     messages = await Message.all()
-    return [MessageRp.from_orm(x) for x in messages]
+    return parse_obj_as(List[MessageRp], messages)
 
 
 @messages_router.post("/")
@@ -36,7 +37,8 @@ async def get_list_of_chats(
 async def get_chat_messages(
         chat_id: int, current_user: UserRp = Depends(get_current_user)
     ) -> List[MessageRp]:
-    return await Message.filter(chat_id=chat_id)
+    messages = await Message.filter(chat_id=chat_id)
+    return parse_obj_as(List[MessageRp], messages)
 
 
 @messages_router.get("/chat/{chat_id}")

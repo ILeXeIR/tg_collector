@@ -11,6 +11,7 @@ class TestGetMessages():
         headers = {"Authorization": token}
         response = await ac.get("/messages/", headers=headers)
         assert response.status_code == 200
+        print(response.json())
         assert len(response.json()) == 3
         assert response.json()[0]["message_id"] == 100
         assert response.json()[1]["dispatch_time"] == "01.02.2023 14:16:16"

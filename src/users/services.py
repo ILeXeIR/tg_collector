@@ -22,4 +22,4 @@ async def get_current_user(
     current_user = await User.get_or_none(username=username)
     if current_user is None:
         raise cred_exception
-    return current_user
+    return UserRp.from_orm(current_user)

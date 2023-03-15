@@ -91,7 +91,7 @@ async def db_with_messages(create_test_db):
             "sender_id": 1000,
             "message_type": "message_text",
             "text": "Hi, Bob",
-            "attachment": str("{}")
+            "attachment": str({})
         },
         {
             "message_id": 101,
@@ -101,7 +101,7 @@ async def db_with_messages(create_test_db):
             "sender_id": 1001,
             "message_type": "message_text",
             "text": "Hi, Alice",
-            "attachment": str("{}")
+            "attachment": str({})
         },
         {
             "message_id": 200,
@@ -111,7 +111,7 @@ async def db_with_messages(create_test_db):
             "sender_id": 1000,
             "message_type": "message_text",
             "text": "Hello, world!",
-            "attachment": str("{}")
+            "attachment": str({})
         }
     ]
     for message in test_messages:

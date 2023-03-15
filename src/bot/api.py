@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import Depends
+from pydantic import parse_obj_as
 
 from src.users.models import UserRp
 from src.users.services import get_current_user
@@ -26,14 +27,16 @@ async def send_in_chat(chat_id: int, text: str,
 @bot_router.get("/chat_states/{chat_id}")
 async def get_chat_states(
         chat_id: int, current_user: UserRp = Depends(get_current_user)
-    ) -> List[StateRp]:
-    return await CustomStorage.filter(chat_id=chat_id).order_by("user_id")
+) -> List[StateRp]:
+    states = await CustomStorage.filter(chat_id=chat_id).order_by("user_id")
+    return parse_obj_as(List[StateRp], states)
 
 
 @bot_router.get("/all_states")
 async def get_all_states(
         current_user: UserRp = Depends(get_current_user)) -> List[StateRp]:
-    return await CustomStorage.all().order_by("chat_id", "user_id")
+    states = await CustomStorage.all().order_by("chat_id", "user_id")
+    return parse_obj_as(List[StateRp], states)
 
 
 

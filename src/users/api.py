@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import parse_obj_as
 from tortoise.exceptions import IntegrityError
 from typing import List
 
@@ -13,7 +14,8 @@ from .models import UserRp, UserRq, Token
 @users_router.get("/")
 async def get_users(
         current_user: UserRp = Depends(get_current_user)) -> List[UserRp]:
-    return await User.all()
+    users = await User.all()
+    return parse_obj_as(List[UserRp], users)
 
 
 @users_router.get("/id/{id}")

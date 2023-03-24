@@ -20,8 +20,8 @@ app.include_router(ws_router, prefix="/ws", tags=["ws"])
 async def startup():
     register_tortoise(
         app,
-        # db_url=settings.POSTGRESQL_URL,
-        db_url="sqlite://database/db.sqlite",
+        db_url=settings.postgresql_url,
+        # db_url="sqlite://database/db.sqlite",
         modules={"models": ["src.users.dao", "src.collector.dao",
                             "src.bot.dao"]},
         generate_schemas=True,

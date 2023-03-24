@@ -1,0 +1,12 @@
+__pycache__/
+.coverage
+.env
+.gitignore
+.git/
+.idea/
+.pytest_cache/
+database/
+Dockerfile
+docker-compose.yaml
+env/
+htmlcov/

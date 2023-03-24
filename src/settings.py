@@ -12,11 +12,28 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
 
-    WEBHOOK_URL: str
+    WEBHOOK_HOST: str
+    WEBHOOK_PATH: str
     WEBHOOK_TOKEN: str = secrets.token_hex(16)
 
-    class Config():
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str
+
+    class Config:
         env_file = ".env"
+
+    @property
+    def webhook_url(self) -> str:
+        return f"{self.WEBHOOK_HOST}{self.WEBHOOK_PATH}"
+
+    @property
+    def postgresql_url(self) -> str:
+        return f"postgres://{self.POSTGRES_USER}:" \
+               f"{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:" \
+               f"{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
 
 settings = Settings()
@@ -27,8 +44,8 @@ from starlette.config import Config
 
 config = Config(".env")
 
-def get_db_url(user, passwd, host, db):
-    return f"postgres://{user}:{passwd}@{host}:35432/{db}"
+def get_db_url(user, passwd, host, port, db):
+    return f"postgres://{user}:{passwd}@{host}:{port}/{db}"
 
 
 TG_BOT_TOKEN = config("TG_BOT_TOKEN", cast=str, default="")
@@ -44,7 +61,8 @@ POSTGRESQL_PASSWORD = config("TC_POSTGRESQL_PASSWORD", cast=str, default="")
 POSTGRESQL_HOSTNAME = config("TC_POSTGRESQL_HOSTNAME", cast=str, default="")
 POSTGRESQL_DATABASE = config("TC_POSTGRESQL_DATABASE", cast=str, default="")
 POSTGRESQL_URL = get_db_url(POSTGRESQL_USERNAME, POSTGRESQL_PASSWORD, 
-                            POSTGRESQL_HOSTNAME, POSTGRESQL_DATABASE)
+                            POSTGRESQL_HOSTNAME, POSTGRESQL_PORT,
+                            POSTGRESQL_DATABASE)
 
 WEBHOOK_HOST = "https://1def-37-252-80-171.eu.ngrok.io"
 WEBHOOK_URL_PATH = "/messages/"

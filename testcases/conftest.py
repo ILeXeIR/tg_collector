@@ -31,6 +31,7 @@ async def create_test_db():
 async def create_test_db():
     await Tortoise.init(
         db_url="sqlite://database/db_test.sqlite",
+        # db_url="postgres://guest:guest@localhost:45432/postgres_db_test",
         modules={"models": ["src.users.dao", "src.collector.dao",
                             "src.bot.dao"]}
     )

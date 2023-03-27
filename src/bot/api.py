@@ -37,9 +37,3 @@ async def get_all_states(
         current_user: UserRp = Depends(get_current_user)) -> List[StateRp]:
     states = await CustomStorage.all().order_by("chat_id", "user_id")
     return parse_obj_as(List[StateRp], states)
-
-
-
-
-
-

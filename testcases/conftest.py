@@ -1,7 +1,6 @@
 from httpx import AsyncClient
 import pytest
 from tortoise import Tortoise
-# from tortoise.contrib.fastapi import register_tortoise, connections
 
 from main import app
 from src.bot.dao import ActiveChat, CustomStorage
@@ -10,28 +9,10 @@ from src.users.dao import User
 from src.users.security import create_access_token, hash_password
 
 
-"""
-@pytest.fixture(scope="session")
-async def create_test_db():
-    # test_db_path = tmpdir_factory.mktemp("test_dir").join("db.sqlite")
-    register_tortoise(
-        app,
-        db_url="sqlite://database/db_test.sqlite",
-        modules={"models": ["src.users.dao", "src.collector.dao",
-                            "src.bot.dao"]},
-        generate_schemas=True,
-        add_exception_handlers=True,
-    )
-    yield
-    connections.close_all()
-"""
-
-
 @pytest.fixture(scope="session")
 async def create_test_db():
     await Tortoise.init(
         db_url="sqlite://database/db_test.sqlite",
-        # db_url="postgres://guest:guest@localhost:45432/postgres_db_test",
         modules={"models": ["src.users.dao", "src.collector.dao",
                             "src.bot.dao"]}
     )

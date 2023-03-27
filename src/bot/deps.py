@@ -49,12 +49,7 @@ async def on_startup():
     await bot.set_webhook(
         url=settings.webhook_url,
         secret_token=settings.WEBHOOK_TOKEN
-        # drop_pending_updates=True
     )
-
-    # Get current webhook status
-    # webhook = await bot.get_webhook_info()
-    # print("WEBHOOK_INFO: ", webhook)
 
 
 @bot_router.on_event("shutdown")

@@ -4,7 +4,7 @@ from src.collector.dao import Message
 from src.settings import settings
 
 
-class TestGetMessages():
+class TestGetMessages:
 
     @pytest.mark.anyio
     async def test_get_messages(self, db_with_messages, ac, token):
@@ -25,7 +25,7 @@ class TestGetMessages():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestGetListOfChats():
+class TestGetListOfChats:
 
     @pytest.mark.anyio
     async def test_get_list_of_chats(self, db_with_messages, ac, token):
@@ -42,7 +42,7 @@ class TestGetListOfChats():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestGetChatMessages():
+class TestGetChatMessages:
 
     @pytest.mark.anyio
     async def test_get_chat_messages(self, db_with_messages, ac, token):
@@ -85,7 +85,7 @@ class TestGetChatMessages():
         assert response.json()["detail"][0]["msg"] == error_text
 
 
-class TestSaveMessage():
+class TestSaveMessage:
 
     update = {
         "update_id": 1234,
@@ -138,4 +138,3 @@ class TestSaveMessage():
         assert response.status_code == 200
         message = await Message.filter(message_id=300).first()
         assert message is None
-

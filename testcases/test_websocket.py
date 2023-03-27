@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 import pytest
-# from starlette.websockets import WebSocketDisconnect
 
 from main import app
 from src.collector.dao import Message
@@ -9,7 +8,7 @@ from src.websocket.deps import manager
 from testcases.conftest import stub_send_from_bot
 
 
-class TestWebsocketChat():
+class TestWebsocketChat:
 
     @pytest.mark.anyio
     async def test_websocket_active_connections(self, token):
@@ -79,13 +78,3 @@ class TestWebsocketChat():
             data = ws.receive_json()
             assert data["message_id"] == new_message.message_id
             assert data["text"] == text
-
-
-"""
-    @pytest.mark.anyio
-    async def test_websocket_unauthorized(self):
-        chat_id = 1
-        client = TestClient(app)
-        with client.websocket_connect(f"/ws/{chat_id}") as ws:
-            pass
-"""

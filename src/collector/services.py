@@ -12,8 +12,8 @@ from .models import MessageRq
 
 async def handle_message(update: Request):
     # Save message in DB, send to bot Dispatcher and to WebSocket manager
+
     update_json = await update.json()
-    # print("UPDATE_JSON: ", update_json)
     update = types.Update(**update_json)
     for key in update_json:
         if key != "update_id":

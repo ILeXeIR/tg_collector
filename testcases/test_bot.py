@@ -4,7 +4,7 @@ import src.bot.api
 from testcases.conftest import stub_send_from_bot
 
 
-class TestGetActiveChats():
+class TestGetActiveChats:
 
     @pytest.mark.anyio
     async def test_get_active_chats(self, db_with_chats, ac, token):
@@ -20,7 +20,7 @@ class TestGetActiveChats():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestGetAllStates():
+class TestGetAllStates:
 
     @pytest.mark.anyio
     async def test_get_all_states(self, db_with_states, ac, token):
@@ -40,7 +40,7 @@ class TestGetAllStates():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestGetChatStates():
+class TestGetChatStates:
 
     @pytest.mark.anyio
     async def test_get_chat_states(self, db_with_states, ac, token):
@@ -70,7 +70,7 @@ class TestGetChatStates():
         assert response.json() == []
 
 
-class TestSendInChat():
+class TestSendInChat:
 
     @pytest.mark.anyio
     async def test_send_in_chat(self, ac, token, mocker):
@@ -80,7 +80,7 @@ class TestSendInChat():
         mocker.patch.object(src.bot.api, "send_from_bot",
                             new=stub_send_from_bot)
         response = await ac.post(f"/bot/chat/{chat_id}", headers=headers,
-                                     params={"text": text})
+                                 params={"text": text})
         assert response.status_code == 200
         assert response.json() == "Done!"
 

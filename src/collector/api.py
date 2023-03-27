@@ -36,24 +36,6 @@ async def get_list_of_chats(
 @messages_router.get("/chat_objects/{chat_id}")
 async def get_chat_messages(
         chat_id: int, current_user: UserRp = Depends(get_current_user)
-    ) -> List[MessageRp]:
+) -> List[MessageRp]:
     messages = await Message.filter(chat_id=chat_id)
     return parse_obj_as(List[MessageRp], messages)
-
-
-@messages_router.get("/chat/{chat_id}")
-async def show_chat(
-        chat_id: int, current_user: UserRp = Depends(get_current_user)
-    ) -> List[str]:
-    data = await Message.filter(chat_id=chat_id)
-    chat = []
-    for d in data:
-        message = f"{d.sender} ({d.dispatch_time})"
-        if d.message_type != "text":
-            message += f"\nSent {d.message_type}"
-            if d.text:
-                message += f" with text:\n'{d.text}'"
-        else:
-            message += f":\n'{d.text}'"
-        chat.append(message)
-    return chat

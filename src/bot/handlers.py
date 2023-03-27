@@ -7,7 +7,6 @@ from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, \
                                                 JOIN_TRANSITION, \
                                                 LEAVE_TRANSITION
 
-from src.settings import settings
 from src.collector.dao import Message
 from .dao import ActiveChat
 
@@ -92,7 +91,6 @@ async def get_bot_rating(message: types.Message, state: FSMContext):
 )
 async def bot_was_added_in_chat(event: ChatMemberUpdated):
     await ActiveChat.get_or_create(chat_id=event.chat.id)
-    # await bot.send_message(chat_id=chat_id, text="Aloha!")
 
 
 @handlers_router.my_chat_member(

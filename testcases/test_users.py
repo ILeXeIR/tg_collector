@@ -6,7 +6,7 @@ from src.users.models import UserRq
 from src.users.security import hash_password, verify_password
 
 
-class TestGetUsers():
+class TestGetUsers:
 
     @pytest.mark.anyio
     async def test_get_users(self, db_with_users, ac, token):
@@ -24,7 +24,7 @@ class TestGetUsers():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestLogin():
+class TestLogin:
 
     @pytest.mark.anyio
     async def test_login(self, db_with_users, ac):
@@ -54,21 +54,8 @@ class TestLogin():
         assert response.status_code == 401
         assert response.json()["detail"] == "Incorrect username or password"
 
-"""
-    @pytest.mark.anyio
-    async def test_login_wrong_password2(self, db_with_users, ac):
-        with pytest.raises(HTTPException) as e:
-            await ac.post(
-                "/users/login",
-                data={"username": "user1", "password": "qwerty"}
-            )
-        assert isinstance(e.value, HTTPException)
-        assert e.value.status_code == 401
-        assert e.value.detail == "Incorrect username or password"
-"""
 
-
-class TestGetUserByID():
+class TestGetUserByID:
 
     @pytest.mark.anyio
     async def test_get_user_by_id(self, db_with_users, ac, token):
@@ -117,7 +104,7 @@ class TestGetUserByID():
         assert response.json()["detail"] == "Not authenticated"
 
 
-class TestGetUserByEmail():
+class TestGetUserByEmail:
 
     @pytest.mark.anyio
     async def test_get_user_by_email(self, db_with_users, ac, token):
@@ -147,7 +134,7 @@ class TestGetUserByEmail():
         assert response.json()["detail"] == "User not found"
 
 
-class TestGetMyUser():
+class TestGetMyUser:
 
     @pytest.mark.anyio
     async def test_get_my_user(self, db_with_users, ac, token):
@@ -174,7 +161,7 @@ class TestGetMyUser():
         assert response.json()["detail"] == "Invalid authentication credentials"
 
 
-class TestCreateUser():
+class TestCreateUser:
 
     @pytest.mark.anyio
     async def test_create_user(self, db_with_users, ac, token):
@@ -259,7 +246,7 @@ class TestCreateUser():
         assert response.json()["detail"] == "Email must be unique"
 
 
-class TestUpdateUser():
+class TestUpdateUser:
 
     @pytest.mark.anyio
     async def test_update_user(self, db_with_users, ac, token):
